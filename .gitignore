@@ -1,0 +1,10 @@
+# Project place file
+/Doggie Clicker.rbxlx
+
+# Roblox Studio lock files
+*.rbxl
+*.rbxlx
+/*.rbxlx.lock
+/*.rbxl.lock
+
+sourcemap.json
