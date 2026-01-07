@@ -2,7 +2,7 @@
 local UpgradeManager = {}
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local NumberFormatter = require(ReplicatedStorage:WaitForChild("NumberFormatter"))
-local upgradeRequest = ReplicatedStorage:WaitForChild("UpgradeRequest") -- RemoteEvent for upgrade requests
+local upgradeRequest = ReplicatedStorage:WaitForChild("UpgradeRequest") -- RemoteEvent for upgssrade requests
 
 local function round(number, numDecimalPlaces)
 	local mult = 10^(numDecimalPlaces or 0)
