@@ -1,21 +1,22 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local NumberFormatter = require(ReplicatedStorage:WaitForChild("NumberFormatter"))
+
 local playerClass = {}
 playerClass.__index = playerClass
 
-local function round(number, numDecimalPlaces)
-	local mult = 10^(numDecimalPlaces or 0)
-	return math.floor(number * mult + 0.5) / mult
+local function round(n, decimals)
+	local mult = 10 ^ (decimals or 0)
+	return math.floor(n * mult + 0.5) / mult
 end
 
-function playerClass.new(player, self)
-	repeat task.wait() until player.Character ~= nil
-	if self then return setmetatable(self, playerClass) end
+function playerClass.new(player)
 	local self = setmetatable({}, playerClass)
-	self.name = player.Name
-	self.character = player.Character
 
-	-- Main Values
+	self.player = player
+	self.name = player.Name
+	self.character = player.Character or player.CharacterAdded:Wait()
+
+	-- Main Values (parented directly under player)
 	self.doggies = Instance.new("NumberValue")
 	self.doggies.Name = "Doggies"
 	self.doggies.Value = 0
@@ -46,12 +47,12 @@ function playerClass.new(player, self)
 	self.bones.Value = 0
 	self.bones.Parent = player
 
-	-- Leaderboard setup
+	-- Leaderboard
 	local leaderstats = Instance.new("Folder")
 	leaderstats.Name = "leaderstats"
 	leaderstats.Parent = player
 
-	self.leaderDoggies = Instance.new("StringValue")  -- Use StringValue to store formatted numbers
+	self.leaderDoggies = Instance.new("StringValue")
 	self.leaderDoggies.Name = "Doggies"
 	self.leaderDoggies.Value = NumberFormatter:FormatNumber(round(self.doggies.Value), 2)
 	self.leaderDoggies.Parent = leaderstats
@@ -63,13 +64,12 @@ function playerClass.new(player, self)
 
 	self.leaderRebirths = Instance.new("StringValue")
 	self.leaderRebirths.Name = "Rebirths"
-	self.leaderRebirths.Value = tostring(self.rebirths.Value)  -- Rebirths usually don't need formatting
+	self.leaderRebirths.Value = tostring(self.rebirths.Value)
 	self.leaderRebirths.Parent = leaderstats
 
 	return self
 end
 
--- Setters for updating the leaderboard
 function playerClass:setDoggies(value)
 	self.doggies.Value = value
 	self.leaderDoggies.Value = NumberFormatter:FormatNumber(round(value), 2)
@@ -77,7 +77,7 @@ end
 
 function playerClass:setRebirths(value)
 	self.rebirths.Value = value
-	self.leaderRebirths.Value = tostring(value)  -- No need for formatting with K/M/B, but can be customized if needed
+	self.leaderRebirths.Value = tostring(value)
 end
 
 function playerClass:setCoinsPerSecond(value)
@@ -97,16 +97,16 @@ function playerClass:setBones(value)
 	self.leaderBones.Value = NumberFormatter:FormatNumber(value)
 end
 
--- Example method to add Doggies
 function playerClass:addDoggies(value)
-	self.doggies.Value += value
-	self.leaderDoggies.Value = NumberFormatter:FormatNumber(self.doggies.Value)
+	local newValue = self.doggies.Value + value
+	self.doggies.Value = newValue
+	self.leaderDoggies.Value = NumberFormatter:FormatNumber(round(newValue), 2)
 end
 
--- Example method to add Bones
 function playerClass:addBones(value)
-	self.bones.Value += value
-	self.leaderBones.Value = NumberFormatter:FormatNumber(self.bones.Value)
+	local newValue = self.bones.Value + value
+	self.bones.Value = newValue
+	self.leaderBones.Value = NumberFormatter:FormatNumber(newValue)
 end
 
 return playerClass
